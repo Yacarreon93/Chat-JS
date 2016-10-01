@@ -46,7 +46,7 @@ function usuario_desconectado(socket){
 	socket.on('disconnect', function(){
 		if(socket.nick){
 			nicks.splice(nicks.indexOf(socket.nick), 1);
-			socket.broadcast.emit('disconnect', {nick: socket.nick});
+			// socket.broadcast.emit('disconnect', {nick: socket.nick});
 			usuarios(socket);
 		}
 	});
