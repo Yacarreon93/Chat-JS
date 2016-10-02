@@ -5,7 +5,7 @@ socket.on('usuarios', function(data){
 	var nicks = data.nicks;
 	$("#usuarios").html('');
 	for (var i=0; i< nicks.length; i++){
-		$("#usuarios").append('<li>' + nicks[i] + '</li>');
+		$("#usuarios").append('<li><div class="circle"></div>' + nicks[i] + '</li>');
 	}
 });
 
