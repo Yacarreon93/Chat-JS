@@ -69,9 +69,20 @@ ul li {
      height: 10px;
      -moz-border-radius: 50%;
      -webkit-border-radius: 50%;
-     border-radius: 50%;
-     background: #5cb85c;
+     border-radius: 50%;     
      float: left;
+}
+
+.active {
+	background: #5CB85C;
+}
+
+.busy {
+	background: #FF9F00;
+}
+
+.inactive {
+	background: #FF0000;
 }
 
 .subtitle {
