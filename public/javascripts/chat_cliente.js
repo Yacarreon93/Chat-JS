@@ -16,7 +16,7 @@ socket.on('usuarios', function(data){
 			s = 'inactive';
 		}
 
-		$("#usuarios").append('<li><div class="circle ' + s + '"></div>' + nicks[i] + '</li>');
+		$("#usuarios").append('<li nickname="' + nicks[i] + '"><div class="circle ' + s + '"></div>' + nicks[i] + '</li>');
 	}
 });
 
@@ -52,6 +52,7 @@ $("#form_mensaje [type='submit']").click(function(){
 	socket.emit('mensaje', {mensaje: mensaje});
 	$("#mensajes").append('<p style="font-weight: bold;"> YO: ' + mensaje + ' </p>').scrollTop($("#mensajes").height());
 	$("#mensajes").val('');
+	$("#mensaje").val('');
 });
 //Espera los mensajes nuevos del servidor
 socket.on('mensaje', function(data){
@@ -59,7 +60,7 @@ socket.on('mensaje', function(data){
 });
 
 //Se dispara cada vez que el usuario se desconecta
-socket.on('disconnect', function(data){
+socket.on('disconnectUser', function(data){
 	$("#mensajes").append('<p style="color: #f00"> ' + data.nick + ' se ha desconectado </p>').scrollTop($("#mensajes").height());
 });
 
@@ -69,63 +70,103 @@ $("#form_status [type='submit']").click(function() {
 	var status = $("select[name='status_id']").val();
 	socket.emit('setStatus', {status: status});
 
-	if (status == 1) {
-		status = 'active';
-	} else if (status == 2) {
-		status = 'busy';
-	} else {
-		status = 'inactive';
+	switch(status) {
+
+		case '1': status = 'active'; 
+				break;
+		case '2': status = 'busy'; 
+				break;
+		case '3': status = 'inactive'; 
+				break;
+		default: status = 'unknown';
 	}
 
-	$("#mensajes").append('<p> YO he cambiado a estado ' + status + '</p>').scrollTop($("#mensajes").height());
-	$("#usuarios li").each(function() {
+	$("#mensajes").append('<p class="' + status + '"> YO have changed to ' + status + '</p>').scrollTop($("#mensajes").height());
 
-		var parts = $(this).html().split('>');		
+	$("#usuarios li").each(function() {		
 
-		if(parts[2] == $('input[name="my_nick"]').val()) {
+		if($(this).attr("nickname") == $('input[name="my_nick"]').val()) {
 
 			$(this).children(":first").removeClass("active");
 			$(this).children(":first").removeClass("busy");
 			$(this).children(":first").removeClass("inactive");
 			$(this).children(":first").addClass(status);
+
 		}
 
 	});
 
 });
 
+// Change user status from server
 socket.on('setStatus', function(data) {
 
 	var status = data.status;
 
-	if (status == 1) {
-		status = 'active';
-	} else if (status == 2) {
-		status = 'busy';
-	} else {
-		status = 'inactive';
-	}
+	switch(status) {
 
-	$("#mensajes").append('<p> '+ data.nick + ' ha cambiado a estado '+ status + '</p>').scrollTop($("#mensajes").height());
+		case '1': status = 'active'; 
+				break;
+		case '2': status = 'busy'; 
+				break;
+		case '3': status = 'inactive'; 
+				break;
+		default: status = 'unknown';
+	}	
 
-	$("#usuarios li").each(function() {
+	$("#mensajes").append('<p class="' + status + '"> '+ data.nick + ' has changed to '+ status + '</p>').scrollTop($("#mensajes").height());
 
-		var parts = $(this).html().split('>');		
+	$("#usuarios li").each(function() {	
 
-		if(parts[2] == data.nick) {		
+		if($(this).attr("nickname") == data.nick) {		
 
 			$(this).children(":first").removeClass("active");
 			$(this).children(":first").removeClass("busy");
 			$(this).children(":first").removeClass("inactive");
 			$(this).children(":first").addClass(status);
+
 		}
 
 	});
 
+});
+
+$("#usuarios").on("click","li", function() {
+
+ 	var whisperto = $(this).attr("nickname");
+
+ 	$("#whisper").show();	
+ 	$("#whisper").html("Whisper to " + whisperto + ": ");
+ 	$("#form_whisper").show();
+ 	$("#whisperto").val(whisperto);
+
+});
+
+$("#form_whisper [type='submit']").click(function() {
+
+	var whisperto = $("#whisperto").val();
+	var message = $("#whispermessage").val();	
+
+	socket.emit('sendWhisper', {message: message, whisperto: whisperto});
+
+	$("#whisperto").val('');
+	$("#whispermessage").val('');
+
+	$("#whisper").hide();
+	$("#form_whisper").hide();
+
+});
+
+socket.on('receiveWhisper', function(data) {
+
+	$("#mensajes").append('<p style="color:#9600CD"> ' + data.whisperfrom + ' has sent a whisper to you: ' + data.message + '</p>').scrollTop($("#mensajes").height());
+	
 });
 
 $(document).ready(function() {
 
 	$("#caja3").hide();
+	$("#whisper").hide();
+	$("#form_whisper").hide();		
 
 });

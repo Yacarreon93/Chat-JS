@@ -1,5 +1,6 @@
 var nicks = new Array();
 var status = new Array();
+var basket = new Array();
 var io;
 
 exports.iniciar = function(http){
@@ -10,12 +11,15 @@ exports.iniciar = function(http){
 		mensaje(socket);
 		usuario_desconectado(socket);
 		setStatus(socket);
+		sendWhisper(socket);
 	});
 }
 
-function usuarios(socket){
+function usuarios(socket) {
+
 	socket.emit('usuarios', {nicks: nicks, status: status});
 	socket.broadcast.emit('usuarios', {nicks: nicks, status: status});
+
 }
 
 function nick(socket){
@@ -24,6 +28,7 @@ function nick(socket){
 		if(nicks.indexOf(nick) == -1){
 			nicks.push(nick);
 			status.push(1);
+			basket.push(socket.id);
 			socket.nick = nick;
 			socket.emit('nick', {correcto: true, nick: nick});
 			socket.broadcast.emit('nuevo_usuario', {nick: nick});
@@ -45,14 +50,22 @@ function mensaje(socket){
 	});
 }
 
-function usuario_desconectado(socket){
-	socket.on('disconnect', function(){
-		if(socket.nick){
-			nicks.splice(nicks.indexOf(socket.nick), 1);
-			status.splice(nicks.indexOf(socket.nick), 1);
-			// socket.broadcast.emit('disconnect', {nick: socket.nick});
+function usuario_desconectado(socket) {
+
+	socket.on('disconnect', function() {
+
+		if(socket.nick) {
+
+			var index = nicks.indexOf(socket.nick);
+
+			nicks.splice(index, 1);
+			status.splice(index, 1);
+			basket.splice(index, 1);
+
+			socket.broadcast.emit('disconnectUser', {nick: socket.nick});
 			usuarios(socket);
 		}
+
 	});
 	
 }
@@ -66,6 +79,23 @@ function setStatus(socket) {
 			var nick = socket.nick;
 			status[nicks.indexOf(nick)] = s;
 			socket.broadcast.emit('setStatus', {status: s, nick: nick});
+		}
+		
+	});
+}
+
+function sendWhisper(socket) {
+
+	socket.on('sendWhisper', function(data) {
+		
+		if(socket.nick) {
+
+			var socketid = basket[nicks.indexOf(data.whisperto)];
+			var whisperfrom = socket.nick;
+			var message = data.message;
+
+			io.sockets.connected[socketid].emit('receiveWhisper', {message: message, whisperfrom: whisperfrom});
+
 		}
 		
 	});
