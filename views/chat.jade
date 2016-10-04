@@ -10,6 +10,16 @@ block content
       input#mensaje(type="text", size="50")
       input(type="submit", value="Enviar mensaje")
   div#caja2
-    h2 Conectados
-    ul#usuarios
+    div#my_session
+    div#caja3.box.bordered
+      h3.subtitle Estado
+      form#form_status(action="javascript:void(0);")
+        select#select_status(name="status_id")
+          option(value=1) Activo
+          option(value=2) Ocupado
+          option(value=3) Inactivo
+        input(type="submit", value="Cambiar status")
+    div#caja4.box.bordered
+      h2 Conectados
+      ul#usuarios
   script(type="text/javascript", src="/javascripts/chat_cliente.js")

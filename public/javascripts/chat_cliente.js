@@ -3,15 +3,29 @@ var socket = io.connect('http://localhost:3000');
 //Recibir los usuarios conectados
 socket.on('usuarios', function(data){
 	var nicks = data.nicks;
+	var status = data.status;
+	var s = '';
 	$("#usuarios").html('');
 	for (var i=0; i< nicks.length; i++){
-		$("#usuarios").append('<li>' + nicks[i] + '</li>');
+
+		if (status[i] == 1) {
+			s = 'active';
+		} else if (status[i] == 2) {
+			s = 'busy';
+		} else {
+			s = 'inactive';
+		}
+
+		$("#usuarios").append('<li><div class="circle ' + s + '"></div>' + nicks[i] + '</li>');
 	}
 });
 
 //Enviar el nick para registrarlo al chat
 $("#form_nick [type='submit']").click(function(){
 	var nick = $("#nick").val();
+	$("#my_session").html('<h3 class="subtitle">' + nick + '</h3>');
+	$("#my_session").append('<input type="hidden" name="my_nick" value="' + nick + '">');
+	$("#caja3").show();
 	socket.emit('nick',{nick: nick});
 });
 
@@ -47,4 +61,71 @@ socket.on('mensaje', function(data){
 //Se dispara cada vez que el usuario se desconecta
 socket.on('disconnect', function(data){
 	$("#mensajes").append('<p style="color: #f00"> ' + data.nick + ' se ha desconectado </p>').scrollTop($("#mensajes").height());
+});
+
+// Change user status
+$("#form_status [type='submit']").click(function() {
+
+	var status = $("select[name='status_id']").val();
+	socket.emit('setStatus', {status: status});
+
+	if (status == 1) {
+		status = 'active';
+	} else if (status == 2) {
+		status = 'busy';
+	} else {
+		status = 'inactive';
+	}
+
+	$("#mensajes").append('<p> YO he cambiado a estado ' + status + '</p>').scrollTop($("#mensajes").height());
+	$("#usuarios li").each(function() {
+
+		var parts = $(this).html().split('>');		
+
+		if(parts[2] == $('input[name="my_nick"]').val()) {
+
+			$(this).children(":first").removeClass("active");
+			$(this).children(":first").removeClass("busy");
+			$(this).children(":first").removeClass("inactive");
+			$(this).children(":first").addClass(status);
+		}
+
+	});
+
+});
+
+socket.on('setStatus', function(data) {
+
+	var status = data.status;
+
+	if (status == 1) {
+		status = 'active';
+	} else if (status == 2) {
+		status = 'busy';
+	} else {
+		status = 'inactive';
+	}
+
+	$("#mensajes").append('<p> '+ data.nick + ' ha cambiado a estado '+ status + '</p>').scrollTop($("#mensajes").height());
+
+	$("#usuarios li").each(function() {
+
+		var parts = $(this).html().split('>');		
+
+		if(parts[2] == data.nick) {		
+
+			$(this).children(":first").removeClass("active");
+			$(this).children(":first").removeClass("busy");
+			$(this).children(":first").removeClass("inactive");
+			$(this).children(":first").addClass(status);
+		}
+
+	});
+
+});
+
+$(document).ready(function() {
+
+	$("#caja3").hide();
+
 });
