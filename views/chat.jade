@@ -21,5 +21,10 @@ block content
         input(type="submit", value="Cambiar status")
     div#caja4.box.bordered
       h2 Conectados
-      ul#usuarios
+      ul#usuarios 
+    div#whisper   
+    form#form_whisper(action="javascript:void(0);")
+      input#whisperto(type="hidden")
+      input#whispermessage(type="text", size="20")
+      input(type="submit", value="Send whisper")
   script(type="text/javascript", src="/javascripts/chat_cliente.js")

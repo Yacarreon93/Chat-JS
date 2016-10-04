@@ -15,6 +15,13 @@ a {
 	margin-right: 15px;
 }
 
+#whisper-box
+{
+	width: 200px;
+	height: 100px;
+	border: solid 1px #000;
+}
+
 #mensajes, #form_mensaje {
 	display: none;
 } 
@@ -53,6 +60,11 @@ a {
 	padding: 0px;
 }
 
+#usuarios li {
+	background: gray;
+	border: solid 1px black;
+}
+
 ul li {
 	list-style: none;
 }
@@ -73,18 +85,37 @@ ul li {
      float: left;
 }
 
-.active {
+div.active {
 	background: #5CB85C;
 }
 
-.busy {
+div.busy {
 	background: #FF9F00;
 }
 
-.inactive {
+div.inactive {
 	background: #FF0000;
+}
+
+p.active {
+	color: #5CB85C;
+}
+
+p.busy {
+	color: #FF9F00;
+}
+
+p.inactive {
+	color: #FF0000;
+}
+
+
+.unknown {
+	background: gray;
+	color: gray;
 }
 
 .subtitle {
 	margin-bottom: 5px;
 }
+
