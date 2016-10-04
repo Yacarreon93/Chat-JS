@@ -15,9 +15,11 @@ exports.iniciar = function(http){
 	});
 }
 
-function usuarios(socket){
+function usuarios(socket) {
+
 	socket.emit('usuarios', {nicks: nicks, status: status});
 	socket.broadcast.emit('usuarios', {nicks: nicks, status: status});
+
 }
 
 function nick(socket){
@@ -48,15 +50,22 @@ function mensaje(socket){
 	});
 }
 
-function usuario_desconectado(socket){
-	socket.on('disconnect', function(){
-		if(socket.nick){
-			nicks.splice(nicks.indexOf(socket.nick), 1);
-			status.splice(nicks.indexOf(socket.nick), 1);
-			basket.splice(nicks.indexOf(socket.nick), 1);
-			// socket.broadcast.emit('disconnect', {nick: socket.nick});
+function usuario_desconectado(socket) {
+
+	socket.on('disconnect', function() {
+
+		if(socket.nick) {
+
+			var index = nicks.indexOf(socket.nick);
+
+			nicks.splice(index, 1);
+			status.splice(index, 1);
+			basket.splice(index, 1);
+
+			socket.broadcast.emit('disconnectUser', {nick: socket.nick});
 			usuarios(socket);
 		}
+
 	});
 	
 }

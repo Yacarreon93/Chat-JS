@@ -60,7 +60,7 @@ socket.on('mensaje', function(data){
 });
 
 //Se dispara cada vez que el usuario se desconecta
-socket.on('disconnect', function(data){
+socket.on('disconnectUser', function(data){
 	$("#mensajes").append('<p style="color: #f00"> ' + data.nick + ' se ha desconectado </p>').scrollTop($("#mensajes").height());
 });
 
